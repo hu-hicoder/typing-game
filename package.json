@@ -14,8 +14,9 @@
   "contributes": {
     "commands": [
       {
-        "command": "typing-game.helloWorld",
-        "title": "Hello World"
+        "command": "typing_game.start",
+        "title": "タイピングゲームの開始",
+        "category": "typing-game"
       }
     ]
   },
