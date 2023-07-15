@@ -14,7 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
       const panel = vscode.window.createWebviewPanel(
         'typing', // Identifies the type of the webview. Used internally
         'タイピングゲーム', // Title of the panel displayed to the user
-        vscode.ViewColumn.Two, // Editor column to show the new webview panel in.
+        vscode.ViewColumn.One, // Editor column to show the new webview panel in.
         {} // Webview options. More on these later.
       );
       
@@ -24,12 +24,21 @@ export function activate(context: vscode.ExtensionContext) {
         panel.title = cat;
         panel.webview.html = getWebviewContent(cat);
       };
-
+      
       // Set initial content
       updateWebview();
 
-      // And schedule updates to the content every second
-      setInterval(updateWebview, 1000);
+      // // Get path to resource on disk
+      // const onDiskPath = vscode.Uri.joinPath(context.extensionUri, 'media', 'cat.gif');
+
+      // // And get the special URI to use with the webview
+      // const catGifSrc = panel.webview.asWebviewUri(onDiskPath);
+
+      // panel.webview.html = getWebviewContent(catGifSrc);
+
+      vscode.workspace.onDidChangeTextDocument(event => {
+        updateWebview();
+      });
     })
   );
 }
