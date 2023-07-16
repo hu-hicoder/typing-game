@@ -15,6 +15,7 @@ function createFire(app) {
     fire.direction = 1 / 2 * Math.PI;
     fire.turningSpeed = 0;
     fire.speed = 2;
+    fire.graviti = 0.1
     return fire;
 }
 
@@ -71,11 +72,12 @@ function pixiGame() {
         });
 
         // update fires
-        fires.forEach(fire => {
+        fires.forEach((fire, i) => {
             fire.x += Math.sin(fire.direction) * fire.speed;
             fire.y += Math.cos(fire.direction) * fire.speed;
             if (fire.x > dudeBounds.x + dudeBounds.width) {
                 fire.destroy();
+                fires[i] = null
             }
         });
 
@@ -87,6 +89,8 @@ function pixiGame() {
                 if (fire === null || goomba === null) continue;
                 if (isCollision(goomba, fire)) {
                     // 配列から削除するために、nullを代入(あとで削除)
+                    goomba.destroy()
+                    fire.destroy()
                     goombas[j] = null;
                     fires[i] = null;
                     break;
