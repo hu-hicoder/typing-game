@@ -26,7 +26,7 @@ function createGoomba(app) {
     goomba.y = app.screen.height / 2;
     goomba.direction = 3 / 2 * Math.PI;
     goomba.turningSpeed = 0;
-    goomba.speed = 0.5 + Math.random()*0.1;
+    goomba.speed = 0.5 + Math.random() * 0.1;
     return goomba;
 }
 
@@ -38,6 +38,9 @@ let fires = [];
 
 // クリボーとファイアボールが衝突しているかどうかを判定
 function isCollision(goomba, fire) {
+    if (goomba === null || fire === null) {
+        return false;
+    }
     if (goomba.x <= fire.x) {
         return true;
     } else {
@@ -66,53 +69,38 @@ function pixiGame() {
     // ファイアボールはクリボーか壁に当たったときに消える
     app.ticker.add(() => {
         // update goombas
-        for (let i = 0; i < goombas.length; i++) {
-            const goomba = goombas[i];
-
+        console.log("hoge", goombas, fires)
+        goombas.forEach(goomba => {
+            console.log(goomba)
             goomba.x += Math.sin(goomba.direction) * goomba.speed;
             goomba.y += Math.cos(goomba.direction) * goomba.speed;
-        }
+        });
 
         // update fires
-        for (let i = 0; i < fires.length; i++) {
-            const fire = fires[i];
-            if (fire === null) { continue; } // いらなさそう
-
+        fires.forEach(fire => {
             fire.x += Math.sin(fire.direction) * fire.speed;
             fire.y += Math.cos(fire.direction) * fire.speed;
-            // wrap the dudes by testing their bounds...
             // if (fire.x > dudeBounds.x + dudeBounds.width) {
             //     fire.destroy();
             // }
-        }
-        // fires = fires.filter(x => x !== null);
+        });
 
         // // 衝突判定と削除の処理
-        // while (goombas.length > 0 && fires.length > 0) {
-        //     if (isCollision(goombas[0], fires[0])) {
-        //         goombas.shift();
-        //         fires.shift();
-        //     }
-        // }
-        // for (let i = 0; i < fires.length; i++) {
-        //     const fire = fires[i];
-        //     let collisioned = false;
-        //     for (let j = 0; j < goombas.length; j++) {
-        //         const goomba = goombas[j];
-        //         if (isCollision(goomba, fire)) {
-        //             collisioned = true;
-        //             goomba.destroy();
-        //             fire.destroy();
-        //             break;
-        //         }
-        //     }
-
-        //     goombas = goombas.filter(x => x !== null);
-        //     fires = fires.filter(x => x !== null);
-        //     if (collisioned) {
-        //         break;
-        //     }
-        // }
+        for (let i = 0; i < fires.length; i++) {
+            const fire = fires[i];
+            for (let j = 0; j < goombas.length; j++) {
+                const goomba = goombas[j];
+                if (fire === null || goomba === null) continue;
+                if (isCollision(goomba, fire)) {
+                    // 配列から削除するために、nullを代入(あとで削除)
+                    goombas[j] = null;
+                    fires[i] = null;
+                    break;
+                }
+            }
+        }
+        goombas = goombas.filter(x => x !== null);
+        fires = fires.filter(x => x !== null);
     });
 }
 
