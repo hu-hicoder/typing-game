@@ -19,6 +19,7 @@ function startTypingGame(context: vscode.ExtensionContext) {
   });
 
   const imageUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, 'image', 'Goomba.png')));
+  console.log("kuribo----------" + imageUri)
 
   panel.webview.postMessage({
     type: 'init',
