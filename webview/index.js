@@ -15,7 +15,6 @@ function createFire(app) {
     fire.direction = 1 / 2 * Math.PI;
     fire.turningSpeed = 0;
     fire.speed = 2;
-    fire.graviti = 0.1
     return fire;
 }
 
