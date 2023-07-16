@@ -18,12 +18,15 @@ function startTypingGame(context: vscode.ExtensionContext) {
     // メッセージの受信時の処理
   });
 
-  const imageUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, 'image', 'Goomba.png')));
-  console.log("kuribo----------" + imageUri)
+  const goombaUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, 'image', 'Goomba.png'))).toString();
+  const fireUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, 'image', 'fire.png'))).toString();
 
   panel.webview.postMessage({
     type: 'init',
-    value: { imageUri: imageUri.toString() }
+    value: {
+      goombaUri: goombaUri,
+      fireUri: fireUri
+    }
   });
 
   vscode.workspace.onDidChangeTextDocument(event => {
