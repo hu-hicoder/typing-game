@@ -3,50 +3,55 @@ import * as PIXI from './pixi.mjs';
 let goombauri;
 let fireuri;
 
+const app = new PIXI.Application({ resizeTo: window });
+document.body.appendChild(app.view);
+
 function createFire(app) {
-    const dude = PIXI.Sprite.from(fireuri);
-    dude.anchor.set(0.5);
-    dude.scale.set(0.1);
-    dude.x = 0;
-    dude.y = app.screen.height / 2;
-    dude.direction = - 3 / 2 * Math.PI;
-    dude.turningSpeed = 0;
-    dude.speed = - 2;
-    return dude;
+    const fire = PIXI.Sprite.from(fireuri);
+    fire.anchor.set(1, 0.5);
+    fire.scale.set(0.1);
+    fire.x = 0;
+    fire.y = app.screen.height / 2;
+    fire.direction = 1 / 2 * Math.PI;
+    fire.turningSpeed = 0;
+    fire.speed = 2;
+    return fire;
 }
 
 function createGoomba(app) {
-    const dude = PIXI.Sprite.from(goombauri);
-    dude.anchor.set(0.5);
-    dude.scale.set(0.1);
-    dude.x = app.screen.width;
-    dude.y = app.screen.height / 2;
-    dude.direction = 3 / 2 * Math.PI;
-    dude.turningSpeed = 0;
-    dude.speed = 2;
-    return dude;
+    const goomba = PIXI.Sprite.from(goombauri);
+    goomba.anchor.set(0, 0.5);
+    goomba.scale.set(0.2);
+    goomba.x = app.screen.width;
+    goomba.y = app.screen.height / 2;
+    goomba.direction = 3 / 2 * Math.PI;
+    goomba.turningSpeed = 0;
+    goomba.speed = 0.5 + Math.random()*0.1;
+    return goomba;
 }
 
 
+
+// holder to store the goombas and fires
+let goombas = [];
+let fires = [];
+
+// クリボーとファイアボールが衝突しているかどうかを判定
+function isCollision(goomba, fire) {
+    if (goomba.x <= fire.x) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function pixiGame() {
-    const app = new PIXI.Application({ resizeTo: window });
-
-    document.body.appendChild(app.view);
-
-    // holder to store the goombas and fires
-    const dudes = [];
-
     const totalGoombas = 10;
-    const totalFires = 10;
+
 
     for (let i = 0; i < totalGoombas; i++) {
         const dude = createGoomba(app);
-        dudes.push(dude);
-        app.stage.addChild(dude);
-    }
-    for (let i = 0; i < totalFires; i++) {
-        const dude = createFire(app);
-        dudes.push(dude);
+        goombas.push(dude);
         app.stage.addChild(dude);
     }
 
@@ -57,29 +62,57 @@ function pixiGame() {
         app.screen.width + dudeBoundsPadding * 2,
         app.screen.height + dudeBoundsPadding * 2);
 
+    // クリボーはファイアボールか左端の壁に当たったときに消える
+    // ファイアボールはクリボーか壁に当たったときに消える
     app.ticker.add(() => {
-        // iterate through the dudes and update their position
-        for (let i = 0; i < dudes.length; i++) {
-            const dude = dudes[i];
+        // update goombas
+        for (let i = 0; i < goombas.length; i++) {
+            const goomba = goombas[i];
 
-            dude.x += Math.sin(dude.direction) * dude.speed;
-            dude.y += Math.cos(dude.direction) * dude.speed;
-
-            // wrap the dudes by testing their bounds...
-            if (dude.x < dudeBounds.x) {
-                dude.speed *= -1;
-            }
-            else if (dude.x > dudeBounds.x + dudeBounds.width) {
-                dude.speed *= -1;
-            }
-
-            if (dude.y < dudeBounds.y) {
-                dude.speed *= -1;
-            }
-            else if (dude.y > dudeBounds.y + dudeBounds.height) {
-                dude.speed *= -1;
-            }
+            goomba.x += Math.sin(goomba.direction) * goomba.speed;
+            goomba.y += Math.cos(goomba.direction) * goomba.speed;
         }
+
+        // update fires
+        for (let i = 0; i < fires.length; i++) {
+            const fire = fires[i];
+            if (fire === null) { continue; } // いらなさそう
+
+            fire.x += Math.sin(fire.direction) * fire.speed;
+            fire.y += Math.cos(fire.direction) * fire.speed;
+            // wrap the dudes by testing their bounds...
+            // if (fire.x > dudeBounds.x + dudeBounds.width) {
+            //     fire.destroy();
+            // }
+        }
+        // fires = fires.filter(x => x !== null);
+
+        // // 衝突判定と削除の処理
+        // while (goombas.length > 0 && fires.length > 0) {
+        //     if (isCollision(goombas[0], fires[0])) {
+        //         goombas.shift();
+        //         fires.shift();
+        //     }
+        // }
+        // for (let i = 0; i < fires.length; i++) {
+        //     const fire = fires[i];
+        //     let collisioned = false;
+        //     for (let j = 0; j < goombas.length; j++) {
+        //         const goomba = goombas[j];
+        //         if (isCollision(goomba, fire)) {
+        //             collisioned = true;
+        //             goomba.destroy();
+        //             fire.destroy();
+        //             break;
+        //         }
+        //     }
+
+        //     goombas = goombas.filter(x => x !== null);
+        //     fires = fires.filter(x => x !== null);
+        //     if (collisioned) {
+        //         break;
+        //     }
+        // }
     });
 }
 
@@ -90,13 +123,13 @@ window.addEventListener('message', event => {
     console.log(event);
     if (message.type === 'init') {
         const { goombaUri, fireUri } = message.value;
-        goombauri = goombaUri
-        fireuri = fireUri
-        pixiGame()
+        goombauri = goombaUri;
+        fireuri = fireUri;
+        pixiGame();
     }
     else if (message.type === 'changeText') {
-        const textChangedCountDiv = document.getElementById('textChangedCount');
-        textChangedCount++;
-        textChangedCountDiv.innerHTML = `textChange ${textChangedCount}回`;
+        const fire = createFire(app);
+        fires.push(fire);
+        app.stage.addChild(fire);
     }
 });
