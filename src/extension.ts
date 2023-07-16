@@ -25,6 +25,14 @@ function startTypingGame(context: vscode.ExtensionContext) {
     value: { imageUri: imageUri.toString() }
   });
 
+  vscode.workspace.onDidChangeTextDocument(event => {
+    // テキストの変更時の処理
+    panel.webview.postMessage({
+      type: 'changeText',
+      value: undefined
+    });
+  });
+
   function getWebviewContent(webview: vscode.Webview) {
     const htmlPath = path.resolve(context.extensionPath, 'webview/index.html');
     const htmlContent = fs.readFileSync(htmlPath, 'utf-8');
