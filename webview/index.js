@@ -1,13 +1,35 @@
 import * as PIXI from './pixi.mjs';
 
+let goombauri;
 
+function createGoomba(app) {
+    const dude = PIXI.Sprite.from(goombauri);
 
-let goombauri
+    // set the anchor point so the texture is centered on the sprite
+    dude.anchor.set(0.5);
+
+    // set a random scale for the dude - no point them all being the same size!
+    dude.scale.set(0.1);
+
+    // finally lets set the dude to be at a random position..
+    dude.x = app.screen.width;
+    dude.y = app.screen.height/2;
+
+    // create some extra properties that will control movement :
+    // create a random direction in radians. This is a number between 0 and PI*2 which is the equivalent of 0 - 360 degrees
+    dude.direction =  3/2 * Math.PI;
+
+    // this number will be used to modify the direction of the dude over time
+    dude.turningSpeed = 0;
+
+    // create a random speed for the dude between 2 - 4
+    dude.speed = 2 + Math.random() * 2;
+
+    return dude;
+}
 
 
 function pixiGame() {
-
-
     const app = new PIXI.Application({ resizeTo: window });
 
     document.body.appendChild(app.view);
@@ -15,38 +37,11 @@ function pixiGame() {
     // holder to store the aliens
     const aliens = [];
 
-    const totalDudes = 20;
-
-
-
+    const totalDudes = 1000;
 
     for (let i = 0; i < totalDudes; i++) {
-        // create a new Sprite that uses the image name that we just generated as its source
-        // const dude = PIXI.Sprite.from('https://pixijs.com/assets/eggHead.png');
-        const dude = PIXI.Sprite.from(goombauri);
-
-        // set the anchor point so the texture is centered on the sprite
-        dude.anchor.set(0.5);
-
-        // set a random scale for the dude - no point them all being the same size!
-        dude.scale.set(0.8 + Math.random() * 0.3);
-
-        // finally lets set the dude to be at a random position..
-        dude.x = Math.random() * app.screen.width;
-        dude.y = Math.random() * app.screen.height;
-
-        dude.tint = Math.random() * 0xFFFFFF;
-
-        // create some extra properties that will control movement :
-        // create a random direction in radians. This is a number between 0 and PI*2 which is the equivalent of 0 - 360 degrees
-        dude.direction = Math.random() * Math.PI * 2;
-
-        // this number will be used to modify the direction of the dude over time
-        dude.turningSpeed = Math.random() - 0.8;
-
-        // create a random speed for the dude between 2 - 4
-        dude.speed = 2 + Math.random() * 2;
-
+        const dude = createGoomba(app);
+        
         // finally we push the dude into the aliens array so it it can be easily accessed later
         aliens.push(dude);
 
