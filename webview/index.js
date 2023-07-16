@@ -8,24 +8,24 @@ document.body.appendChild(app.view);
 
 function createFire(app) {
     const fire = PIXI.Sprite.from(fireuri);
-    fire.anchor.set(1, 0.5);
+    fire.anchor.set(1, 1);
     fire.scale.set(0.1);
     fire.x = 0;
-    fire.y = app.screen.height / 2;
-    fire.direction = 1 / 2 * Math.PI;
-    fire.turningSpeed = 0;
-    fire.speed = 2;
+    fire.y = app.screen.height * 0.6;
+    fire.vx = 5;
+    fire.vy = 0;
+    fire.gravity = 0.2;
+    fire.e = 0.6;
     return fire;
 }
 
 function createGoomba(app) {
     const goomba = PIXI.Sprite.from(goombauri);
-    goomba.anchor.set(0, 0.5);
+    goomba.anchor.set(0, 1);
     goomba.scale.set(0.2);
     goomba.x = app.screen.width;
-    goomba.y = app.screen.height / 2;
+    goomba.y = app.screen.height;
     goomba.direction = 3 / 2 * Math.PI;
-    goomba.turningSpeed = 0;
     goomba.speed = 0.5 + Math.random() * 0.1;
     return goomba;
 }
@@ -61,6 +61,9 @@ function pixiGame() {
         -dudeBoundsPadding, -dudeBoundsPadding,
         app.screen.width + dudeBoundsPadding * 2, app.screen.height + dudeBoundsPadding * 2);
 
+
+
+
     // クリボーはファイアボールか左端の壁に当たったときに消える
     // ファイアボールはクリボーか壁に当たったときに消える
     app.ticker.add(() => {
@@ -72,8 +75,13 @@ function pixiGame() {
 
         // update fires
         fires.forEach((fire, i) => {
-            fire.x += Math.sin(fire.direction) * fire.speed;
-            fire.y += Math.cos(fire.direction) * fire.speed;
+            fire.x += fire.vx;
+            fire.y += fire.vy;
+            fire.vy += fire.gravity
+            if (fire.y > app.screen.height) {
+                fire.y = app.screen.height;
+                fire.vy *= -fire.e;
+            }
             if (fire.x > dudeBounds.x + dudeBounds.width) {
                 fire.destroy();
                 fires[i] = null
