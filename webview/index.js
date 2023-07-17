@@ -11,10 +11,10 @@ function createFire(app) {
     fire.anchor.set(1, 1);
     fire.scale.set(0.1);
     fire.x = 0;
-    fire.y = app.screen.height * 0.6;
-    fire.vx = 5;
+    fire.y = app.screen.height * 0.8;
+    fire.vx = 10;
     fire.vy = 0;
-    fire.gravity = 0.2;
+    fire.gravity = 0.5;
     fire.e = 0.6;
     return fire;
 }
@@ -22,7 +22,7 @@ function createFire(app) {
 function createGoomba(app) {
     const goomba = PIXI.Sprite.from(goombauri);
     goomba.anchor.set(0, 1);
-    goomba.scale.set(0.2);
+    goomba.scale.set(0.1);
     goomba.x = app.screen.width;
     goomba.y = app.screen.height;
     goomba.direction = 3 / 2 * Math.PI;
@@ -36,6 +36,17 @@ function createGoomba(app) {
 let goombas = [];
 let fires = [];
 
+let tickCount = 0;
+let typeCount = 0;
+
+const firePerType = 10;
+
+const typeCountText = new PIXI.Text(0, { fontFamily: 'Arial', fontSize: 24, fill: 0xffffff, align: 'center' });
+typeCountText.anchor.set(0.5);
+typeCountText.x = 100;
+typeCountText.y = 100;
+app.stage.addChild(typeCountText);
+
 // クリボーとファイアボールが衝突しているかどうかを判定
 function isCollision(goomba, fire) {
     if (goomba.x <= fire.x) {
@@ -46,14 +57,15 @@ function isCollision(goomba, fire) {
 }
 
 function pixiGame() {
-    const totalGoombas = 10;
+    createGoomba(app);
+    // const totalGoombas = 10;
 
 
-    for (let i = 0; i < totalGoombas; i++) {
-        const dude = createGoomba(app);
-        goombas.push(dude);
-        app.stage.addChild(dude);
-    }
+    // for (let i = 0; i < totalGoombas; i++) {
+    //     const dude = createGoomba(app);
+    //     goombas.push(dude);
+    //     app.stage.addChild(dude);
+    // }
 
     // create a bounding box for the little dudes
     const dudeBoundsPadding = 100;
@@ -61,12 +73,17 @@ function pixiGame() {
         -dudeBoundsPadding, -dudeBoundsPadding,
         app.screen.width + dudeBoundsPadding * 2, app.screen.height + dudeBoundsPadding * 2);
 
-
+    // const text = new PIXI.Text(0, { fontFamily: 'Arial', fontSize: 24, fill: 0x101010, align: 'center' });
 
 
     // クリボーはファイアボールか左端の壁に当たったときに消える
     // ファイアボールはクリボーか壁に当たったときに消える
     app.ticker.add(() => {
+        if (tickCount % 200 === 0) {
+            const goomba = createGoomba(app);
+            goombas.push(goomba);
+            app.stage.addChild(goomba);
+        }
         // update goombas
         goombas.forEach(goomba => {
             goomba.x += Math.sin(goomba.direction) * goomba.speed;
@@ -82,6 +99,7 @@ function pixiGame() {
                 fire.y = app.screen.height;
                 fire.vy *= -fire.e;
             }
+            // 画面外に出たものを削除
             if (fire.x > dudeBounds.x + dudeBounds.width) {
                 fire.destroy();
                 fires[i] = null
@@ -106,6 +124,8 @@ function pixiGame() {
         }
         goombas = goombas.filter(x => x !== null);
         fires = fires.filter(x => x !== null);
+
+        tickCount++;
     });
 }
 
@@ -119,8 +139,12 @@ window.addEventListener('message', event => {
         pixiGame();
     }
     else if (message.type === 'changeText') {
-        const fire = createFire(app);
-        fires.push(fire);
-        app.stage.addChild(fire);
+        if (typeCount % firePerType == 0) {
+            const fire = createFire(app);
+            fires.push(fire);
+            app.stage.addChild(fire);
+        }
+        typeCount++;
+        typeCountText.text = typeCount;
     }
 });
